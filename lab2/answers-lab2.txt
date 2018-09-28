@@ -1,0 +1,28 @@
+1.
+x should be uintptr_t
+
+2.
+Entry | Base Virtual Address | Points to (logically)
+1023  |      0xFFC00000      | Page table for top 4MB of phys memory
+...   |       ... ...        | ... ...
+960   |      0xF000000       | Kernal Base and Kernal Stack Top
+
+3.
+We use permission to fault isolation to prevent user programs from reading or
+writing the kernel's memory. If the page is not set PTE_U, then user programs
+won't be able to read or write into those pages (including page directories and
+page tables).
+
+4.
+Since we only have 4MB for 'pages', and each struct PageInfo will take 8 bytes,
+so we only have 512k pages, which are 2GB.
+
+5. 
+We need 4MB for 'pages' to store PageInfo and 2MB to store page table and 2KB
+to store page directories 
+
+6.
+This happens at line 67 and 68 in kern/entry
+The jump is achieved through jmp
+The reason it works is that it maps [0, 4M) to [Kernbase, kernbase + 4m),
+otherwise we will receive a SIGTRAP signal.
